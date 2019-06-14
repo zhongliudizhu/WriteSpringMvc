@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.*;
 
@@ -22,7 +23,9 @@ public class BinDispatcherServlet extends HttpServlet {
 
     private List<String> packageList = new ArrayList<>();
 
-    Map<String, Object> instanceMap = new HashMap<>();
+    private Map<String, Object> instanceMap = new HashMap<>();
+
+    private Map<String, Method> methodMap = new HashMap<>();
 
     @Override
     public void init(ServletConfig config) {
@@ -43,9 +46,34 @@ public class BinDispatcherServlet extends HttpServlet {
         scanBasePackages(packageName);
         //反射创建实例对象注册
         createBeanInstance(packageList);
-        //获取Url与Method的对应关系
+        //获取Url与Method的对应关系handlerMapping
+        doHandlerMapping(instanceMap);
 
         //进行依赖注入
+
+    }
+
+    private void doHandlerMapping(Map<String, Object> instanceMap) {
+        if (instanceMap.isEmpty()) {
+            return;
+        }
+        for (Map.Entry<String, Object> map : instanceMap.entrySet()) {
+            Class<?> clazz = map.getValue().getClass();
+            if (clazz.isAnnotationPresent(BinController.class) && clazz.isAnnotationPresent(BinRequestMapping.class)) {
+                String value = clazz.getAnnotation(BinRequestMapping.class).value();
+                Method[] methods = clazz.getMethods();
+                for (Method m : methods) {
+                    if (m.isAnnotationPresent(BinRequestMapping.class)) {
+
+                    }
+
+                }
+
+            }
+
+
+        }
+
 
     }
 
@@ -57,10 +85,8 @@ public class BinDispatcherServlet extends HttpServlet {
             Class clazz;
             try {
                 clazz = Class.forName(s);
-
                 if (clazz.isAnnotationPresent(BinController.class)) {
-
-
+                    instanceMap.put(toFirstLowerCase(clazz.getSimpleName()), clazz.newInstance());
                 } else if (clazz.isAnnotationPresent(BinService.class)) {
                     BinService binService = (BinService) clazz.getAnnotation(BinService.class);
                     String value = binService.value();
