@@ -30,7 +30,10 @@ public class BinFrameWorkServlet extends BinHttpServletBean {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        initDispatcherServlet(instanceMap, methodMap);
+    }
 
+    protected void initDispatcherServlet(Map<String, Object> instanceMap, Map<String, Method> methodMap) {
     }
 
     private String toFirstLowerCase(String simpleName) {
@@ -39,7 +42,7 @@ public class BinFrameWorkServlet extends BinHttpServletBean {
         return String.valueOf(chars);
     }
 
-    private void doFieldAutowired(Map<String, Object> instanceMap) throws IllegalAccessException, InstantiationException {
+    private void doFieldAutowired(Map<String, Object> instanceMap) throws IllegalAccessException {
         if (instanceMap.isEmpty()) {
             return;
         }
@@ -54,7 +57,7 @@ public class BinFrameWorkServlet extends BinHttpServletBean {
                         //如果有显示的值则去容器中寻找实例并进行自动注入
                         if (!value.isEmpty()) {
                             Object o = instanceMap.get(value);
-                            field.set(value, o);
+                            field.set(map.getValue(), o);
                         } else {
                             doImplAutoWired(field.getName());
                         }
@@ -74,9 +77,6 @@ public class BinFrameWorkServlet extends BinHttpServletBean {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        if (clazz.isInterface()) {
-
-        }
 
     }
 
@@ -87,7 +87,10 @@ public class BinFrameWorkServlet extends BinHttpServletBean {
         for (Map.Entry<String, Object> map : instanceMap.entrySet()) {
             Class<?> clazz = map.getValue().getClass();
             if (clazz.isAnnotationPresent(BinController.class)) {
-                String value = clazz.getAnnotation(BinRequestMapping.class).value();
+                String value = "";
+                if (clazz.isAnnotationPresent(BinRequestMapping.class)) {
+                    value = clazz.getAnnotation(BinRequestMapping.class).value();
+                }
                 if (!value.isEmpty() && value.startsWith("/")) {
                     value = value.substring(1);
                 }

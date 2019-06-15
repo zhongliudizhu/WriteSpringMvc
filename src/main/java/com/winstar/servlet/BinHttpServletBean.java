@@ -17,7 +17,7 @@ public abstract class BinHttpServletBean extends HttpServlet {
     private List<String> packageList = new ArrayList<>();
 
     @Override
-    public void init(ServletConfig config) throws ServletException {
+    public void init(ServletConfig config) {
         Properties properties = new Properties();
         //获取配置文件路径,加载配置文件
         String contextConfigLocation = config.getInitParameter("contextConfigLocation");
