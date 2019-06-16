@@ -2,6 +2,8 @@ package com.winstar.servlet;
 
 
 import com.winstar.annotation.*;
+import com.winstar.handler.BinHandlerMethod;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -9,11 +11,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 public class BinFrameWorkServlet extends BinHttpServletBean {
 
     private Map<String, Object> instanceMap = new HashMap<>();
 
-    private Map<String, Method> methodMap = new HashMap<>();
+    private Map<String, BinHandlerMethod> methodMap = new HashMap<>();
 
     @Override
     protected void initServletBean(List<String> packageList) {
@@ -30,7 +33,7 @@ public class BinFrameWorkServlet extends BinHttpServletBean {
         initDispatcherServlet(instanceMap, methodMap);
     }
 
-    protected void initDispatcherServlet(Map<String, Object> instanceMap, Map<String, Method> methodMap) {
+    protected void initDispatcherServlet(Map<String, Object> instanceMap, Map<String, BinHandlerMethod> methodMap) {
     }
 
     private String toFirstLowerCase(String simpleName) {
@@ -97,7 +100,10 @@ public class BinFrameWorkServlet extends BinHttpServletBean {
                         if (s.startsWith("/")) {
                             s = s.substring(1);
                         }
-                        methodMap.put("/" + value + "/" + s, m);
+                        String finalUrl = "/" + value + "/" + s;
+                        methodMap.put(finalUrl, new BinHandlerMethod(finalUrl, m));
+                        log.info("mapped url  " + finalUrl + "  to  BinHandlerMethod " + m);
+
                     }
                 }
             }

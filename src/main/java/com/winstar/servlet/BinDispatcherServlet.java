@@ -1,6 +1,7 @@
 package com.winstar.servlet;
 
 import com.winstar.annotation.BinController;
+import com.winstar.handler.BinHandlerMethod;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,7 +15,7 @@ import java.util.Set;
 public class BinDispatcherServlet extends BinFrameWorkServlet {
 
     private Map<String, Object> instanceMap = new HashMap<>();
-    private Map<String, Method> methodMap = new HashMap<>();
+    private Map<String, BinHandlerMethod> methodMap = new HashMap<>();
     private Map<String, Object> objectMap = new HashMap<>();
 
     @Override
@@ -25,7 +26,9 @@ public class BinDispatcherServlet extends BinFrameWorkServlet {
         log.info("=====requestURI==" + requestURI + "=======contextPath===" + contextPath);
         requestURI = requestURI.replaceAll(contextPath, "");
         String methodUrl = requestURI.substring(requestURI.indexOf(contextPath));
-        Method method = methodMap.get(methodUrl);
+        //需要对url是否携带参数进行判断并解析
+
+        Method method = methodMap.get(methodUrl).getMethod();
         Object instance = objectMap.get(method.getName());
         if (instance == null) {
             instance = findInstanceInInstanceMap(instanceMap, method.getName());
@@ -69,7 +72,7 @@ public class BinDispatcherServlet extends BinFrameWorkServlet {
 
 
     @Override
-    protected void initDispatcherServlet(Map<String, Object> instanceMap, Map<String, Method> methodMap) {
+    protected void initDispatcherServlet(Map<String, Object> instanceMap, Map<String, BinHandlerMethod> methodMap) {
         this.instanceMap = instanceMap;
         this.methodMap = methodMap;
     }
