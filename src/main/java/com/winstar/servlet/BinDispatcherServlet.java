@@ -1,17 +1,16 @@
 package com.winstar.servlet;
 
 import com.winstar.annotation.BinController;
+import lombok.extern.slf4j.Slf4j;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-
+@Slf4j
 public class BinDispatcherServlet extends BinFrameWorkServlet {
 
     private Map<String, Object> instanceMap = new HashMap<>();
@@ -20,8 +19,10 @@ public class BinDispatcherServlet extends BinFrameWorkServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        log.info(Thread.currentThread().getName() + "=====处理请求====");
         String requestURI = req.getRequestURI();
         String contextPath = req.getContextPath();
+        log.info("=====requestURI==" + requestURI + "=======contextPath===" + contextPath);
         requestURI = requestURI.replaceAll(contextPath, "");
         String methodUrl = requestURI.substring(requestURI.indexOf(contextPath));
         Method method = methodMap.get(methodUrl);
@@ -35,9 +36,7 @@ public class BinDispatcherServlet extends BinFrameWorkServlet {
         //进行反射调用
         try {
             method.invoke(instance, req, resp);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

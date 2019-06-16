@@ -1,7 +1,6 @@
 package com.winstar.servlet;
 
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -51,6 +50,9 @@ public abstract class BinHttpServletBean extends HttpServlet {
             packageList.add(packageName + "." + file.getName().replaceAll(".class", ""));
         }
         File[] files = file.listFiles();
+        if (files == null || files.length == 0) {
+            throw new NullPointerException("===无相应文件===");
+        }
         for (File f : files) {
             if (f.isDirectory()) {
                 scanBasePackages(packageName + "." + f.getName());
@@ -63,11 +65,11 @@ public abstract class BinHttpServletBean extends HttpServlet {
 
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         doGet(req, resp);
     }
 }

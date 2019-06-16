@@ -6,7 +6,7 @@ import com.winstar.service.DemoService;
 
 import java.util.List;
 
-@BinService
+@BinService(value = "demoServiceImpl")
 public class DemoServiceImpl implements DemoService {
 
     public DemoServiceImpl() {

@@ -1,10 +1,7 @@
 package com.winstar.servlet;
 
 
-import com.winstar.annotation.BinAutowired;
-import com.winstar.annotation.BinController;
-import com.winstar.annotation.BinRequestMapping;
-import com.winstar.annotation.BinService;
+import com.winstar.annotation.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -47,34 +44,33 @@ public class BinFrameWorkServlet extends BinHttpServletBean {
             return;
         }
         for (Map.Entry<String, Object> map : instanceMap.entrySet()) {
-            Class<?> aClass = map.getValue().getClass();
-            if (aClass.isAnnotationPresent(BinController.class)) {
+            Object obj = map.getValue();
+            Class<?> aClass = obj.getClass();
                 Field[] fields = aClass.getDeclaredFields();
                 for (Field field : fields) {
-                    if (field.isAnnotationPresent(BinAutowired.class)) {
-                        field.setAccessible(true);
-                        String value = field.getAnnotation(BinAutowired.class).value();
+                    field.setAccessible(true);
+                    if (field.isAnnotationPresent(BinAutowired.class) && field.isAnnotationPresent(BinQualifer.class)) {
+                        String value = field.getAnnotation(BinQualifer.class).value();
                         //如果有显示的值则去容器中寻找实例并进行自动注入
                         if (!value.isEmpty()) {
                             Object o = instanceMap.get(value);
-                            field.set(map.getValue(), o);
-                        } else {
-                            doImplAutoWired(field.getName());
+                            field.set(obj, o);
                         }
+                    } else if (field.isAnnotationPresent(BinAutowired.class)) {
+                        doImplAutoWired(field, instanceMap, obj);
                     }
-
-                }
-
             }
-
         }
     }
 
-    private void doImplAutoWired(String name) {
-        Class clazz = null;
+    private void doImplAutoWired(Field field, Map<String, Object> instanceMap, Object obj) {
         try {
-            clazz = Class.forName(name);
-        } catch (ClassNotFoundException e) {
+            Object object = instanceMap.get(field.getName() + "Impl");
+            if (object != null) {
+                field.set(obj, object);
+            }
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

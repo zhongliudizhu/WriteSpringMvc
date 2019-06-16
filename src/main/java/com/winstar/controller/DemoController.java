@@ -3,6 +3,7 @@ package com.winstar.controller;
 import com.alibaba.fastjson.JSON;
 import com.winstar.annotation.BinAutowired;
 import com.winstar.annotation.BinController;
+import com.winstar.annotation.BinQualifer;
 import com.winstar.annotation.BinRequestMapping;
 import com.winstar.pojo.Person;
 import com.winstar.service.DemoService;
@@ -17,20 +18,22 @@ import java.util.List;
 @BinRequestMapping("/demoController")
 public class DemoController {
 
-    @BinAutowired(value = "demoServiceImpl")
+    @BinAutowired
+    @BinQualifer(value = "demoServiceImpl")
     private DemoService demoService;
 
     @BinRequestMapping("/getAllPersons")
     public void getAllPersons(HttpServletRequest request, HttpServletResponse response) {
         List<Person> allPersons = demoService.getAllPersons();
-        PrintWriter writer = null;
+        PrintWriter writer;
         try {
             writer = response.getWriter();
+            writer.print(JSON.toJSONString(allPersons));
+            writer.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        writer.print(JSON.toJSONString(allPersons));
-        writer.flush();
+
     }
 
 
