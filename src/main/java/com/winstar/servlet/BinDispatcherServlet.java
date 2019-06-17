@@ -4,6 +4,8 @@ import com.winstar.annotation.BinController;
 import com.winstar.handler.BinHandlerMethod;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
@@ -12,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Slf4j
+@WebServlet(urlPatterns = "/", loadOnStartup = 1, initParams = {@WebInitParam(name = "contextConfigLocation", value = "classpath:scan.properties")})
 public class BinDispatcherServlet extends BinFrameWorkServlet {
 
     private Map<String, Object> instanceMap = new HashMap<>();

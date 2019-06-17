@@ -31,6 +31,7 @@ public abstract class BinHttpServletBean extends HttpServlet {
         if (packageName.isEmpty()) {
             return;
         }
+        //扫描配置文件
         scanBasePackages(packageName);
         initServletBean(packageList);
 
