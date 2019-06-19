@@ -2,6 +2,7 @@ package com.winstar.servlet;
 
 import com.winstar.annotation.BinController;
 import com.winstar.handler.BinHandlerMethod;
+import com.winstar.valueResolver.ParameterResolver;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.annotation.WebInitParam;
@@ -17,9 +18,8 @@ import java.util.Set;
 @WebServlet(urlPatterns = "/", loadOnStartup = 1, initParams = {@WebInitParam(name = "contextConfigLocation", value = "classpath:scan.properties")})
 public class BinDispatcherServlet extends BinFrameWorkServlet {
 
-    private Map<String, Object> instanceMap = new HashMap<>();
-    private Map<String, BinHandlerMethod> methodMap = new HashMap<>();
     private Map<String, Object> objectMap = new HashMap<>();
+
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
@@ -27,18 +27,26 @@ public class BinDispatcherServlet extends BinFrameWorkServlet {
         String requestURI = req.getRequestURI();
         String contextPath = req.getContextPath();
         log.info("=====requestURI==" + requestURI + "=======contextPath===" + contextPath);
-        requestURI = requestURI.replaceAll(contextPath, "");
+        requestURI = requestURI.trim().replaceAll(contextPath, "");
         String methodUrl = requestURI.substring(requestURI.indexOf(contextPath));
-        //需要对url是否携带参数进行判断并解析
+        //需要对request是否携带参数进行判断并解析
+        if (methodUrl.contains("?")) {
+            int index = methodUrl.lastIndexOf("?");
+            methodUrl = methodUrl.substring(0, index);
+        }
+        BinHandlerMethod handlerMethod = this.getMethodMap().get(methodUrl);
+        Method method = handlerMethod.getMethod();
+        //对参数进行解析
 
-        Method method = methodMap.get(methodUrl).getMethod();
-        Object instance = objectMap.get(method.getName());
+
+        Object instance = objectMap.get(method);
         if (instance == null) {
-            instance = findInstanceInInstanceMap(instanceMap, method.getName());
+            instance = findInstanceInInstanceMap(this.getInstanceMap(), method.getName());
         }
         if (instance == null) {
             throw new NullPointerException("===无法获取实例===");
         }
+
         //进行反射调用
         try {
             method.invoke(instance, req, resp);
@@ -74,9 +82,4 @@ public class BinDispatcherServlet extends BinFrameWorkServlet {
     }
 
 
-    @Override
-    protected void initDispatcherServlet(Map<String, Object> instanceMap, Map<String, BinHandlerMethod> methodMap) {
-        this.instanceMap = instanceMap;
-        this.methodMap = methodMap;
-    }
 }

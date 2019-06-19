@@ -1,29 +1,30 @@
 package com.winstar.valueResolver;
 
-import com.winstar.handler.BinHandlerMethod;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 @Slf4j
-public class AbstractParamResolver implements ParameterResolver {
-    private Map<String, Object> paramMap = new HashMap<>();
-    private Set<String> paramSets = new HashSet<>();
+public abstract class AbstractParamResolver implements ParameterResolver {
+    private Map<String, Object> paramMap;
+    private Set<String> paramSets;
+
+
 
     @Override
-    public void doResolve(BinHandlerMethod handlerMethod) {
+    public void doResolve(String requestUri, Method handlerMethod) {
         log.info("====进行参数解析===");
-        if (handlerMethod == null) {
-            return;
-        }
-        Method method = handlerMethod.getMethod();
-        Parameter[] parameters = method.getParameters();
+        doRealResolve(requestUri, handlerMethod);
+
+    }
+
+    protected abstract void doRealResolve(String requestUri, Method handlerMethod);
 
 
+    @Override
+    public boolean support(String requestUri, Method handlerMethod) {
+        return false;
     }
 }

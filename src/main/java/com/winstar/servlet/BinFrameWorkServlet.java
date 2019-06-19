@@ -3,6 +3,7 @@ package com.winstar.servlet;
 
 import com.winstar.annotation.*;
 import com.winstar.handler.BinHandlerMethod;
+import com.winstar.valueResolver.ParameterResolver;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
@@ -18,6 +19,9 @@ public class BinFrameWorkServlet extends BinHttpServletBean {
 
     private Map<String, BinHandlerMethod> methodMap = new HashMap<>();
 
+
+    //参数解析器
+    private List<ParameterResolver> parameterResolverList;
     @Override
     protected void initServletBean(List<String> packageList) {
         //反射创建实例对象注册
@@ -30,11 +34,13 @@ public class BinFrameWorkServlet extends BinHttpServletBean {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        initDispatcherServlet(instanceMap, methodMap);
+        initParameterResolver(instanceMap, methodMap);
     }
 
-    protected void initDispatcherServlet(Map<String, Object> instanceMap, Map<String, BinHandlerMethod> methodMap) {
+    private void initParameterResolver(Map<String, Object> instanceMap, Map<String, BinHandlerMethod> methodMap) {
     }
+
+
 
     private String toFirstLowerCase(String simpleName) {
         char[] chars = simpleName.toCharArray();
@@ -72,7 +78,6 @@ public class BinFrameWorkServlet extends BinHttpServletBean {
             if (object != null) {
                 field.set(obj, object);
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -141,5 +146,17 @@ public class BinFrameWorkServlet extends BinHttpServletBean {
         }
 
 
+    }
+
+    public List<ParameterResolver> getParameterResolverList() {
+        return this.parameterResolverList;
+    }
+
+    public Map<String, Object> getInstanceMap() {
+        return instanceMap;
+    }
+
+    public Map<String, BinHandlerMethod> getMethodMap() {
+        return methodMap;
     }
 }
